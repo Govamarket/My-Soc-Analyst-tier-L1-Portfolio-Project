@@ -1,0 +1,95 @@
+# SSH Authentication Monitoring: Security Investigation Report
+
+**Prepared by:** Clinton Chidera
+**Date:** 23 November 2026
+**Environment:** Kali Linux 2026.2 (isolated VirtualBox lab)
+**Classification:** Public (lab exercise, no production data)
+
+---
+
+## 1. Executive Summary
+
+Remote access services such as SSH are a primary target for attackers, and a business can only defend them if it can see who is trying to log in. This investigation tested whether failed and successful SSH logins are visible on a default Kali Linux build.
+
+**Key result:** on a default install, SSH authentication events were **not written to `/var/log/auth.log`**, so any tooling or analyst relying on that file would have seen nothing. After enabling `rsyslog`, failed logins were captured in full: username, source address, source port and timestamp. The exercise also showed that a poorly written log search can return false reassurance.
+
+**Business impact:** a monitoring blind spot on remote access delays breach detection, and delayed detection increases the cost and scope of an incident.
+
+## 2. Scope and Method
+
+| Item | Detail |
+|---|---|
+| Systems | One Kali Linux VM (local lab only) |
+| Log sources | `/var/log/auth.log`, systemd journal, `last` |
+| Steps | Verified logging, installed and enabled `rsyslog`, enabled and started SSH, generated controlled failed logins, reviewed records |
+
+```bash
+sudo apt install rsyslog && sudo systemctl enable --now rsyslog
+sudo systemctl enable --now ssh
+sudo journalctl -u ssh -f
+sudo grep -i "failed password" /var/log/auth.log | grep -v COMMAND
+```
+
+## 3. Evidence
+
+| Evidence item | Observation |
+|---|---|
+| SSH service status | Enabled 06:09, started 06:10:34, listening on port 22 (IPv4 and IPv6) |
+| Source IP address | `::1` (loopback, same machine) |
+| Target username | `kali` |
+| Failed login events | 2 (06:13:49 and 06:13:57), same connection |
+| Successful SSH login events | Not yet captured; see Recommendation 5 |
+| Relevant timestamps | Times shown in UTC-05:00 |
+
+**Figure 1: Logging gap.** Default `/var/log` contains a `journal` directory but no `auth.log`.
+
+![Figure 1: /var/log before rsyslog, no auth.log present](images/01-var-log-listing.png)
+
+**Figure 2: Failed SSH authentication.** The journal records the service start, two failed passwords and a pre-authentication timeout.
+
+![Figure 2: journalctl output showing failed SSH logins](images/02-journalctl-ssh-failed-logins.png)
+
+**Figure 3: Audit trail after enabling rsyslog.** `auth.log` now records service changes and privileged commands with timestamps.
+
+![Figure 3: auth.log showing rsyslog and SSH service events](images/04-auth-log-sudo-and-ssh-service-events.png)
+
+**Figure 4: Detection pitfall.** A case-sensitive search matched only my own commands and found none of the real failed logins.
+
+![Figure 4: grep results matching only sudo command lines](images/05-grep-failed-password-self-match.png)
+
+## 4. Findings and Business Risk
+
+| # | Finding | Risk to the business |
+|---|---|---|
+| 1 | Default build has no `auth.log`; events exist only in the journal | **High.** Tools and analysts that read `auth.log` are blind to login activity |
+| 2 | SSH is disabled by default and produced no logs until started | **Low.** Positive: a smaller attack surface by default |
+| 3 | Failed logins were fully recorded once logging was configured (user, source IP, port, time) | **Positive.** Supports investigation and attribution |
+| 4 | Both failures came from one connection, followed by an idle timeout | **Informational.** Consistent with a controlled test, not brute force |
+| 5 | A flawed search returned zero results despite real events | **Medium.** False assurance can hide an active attack |
+| 6 | No suspicious activity: loopback source, one account, two attempts | **None identified** |
+
+## 5. Recommendations
+
+1. **Standardise logging.** Enable `rsyslog` (or forward the journal to a central log platform) on every system exposing SSH.
+2. **Harden SSH.** Set `PermitRootLogin no`, `PasswordAuthentication no` (key-based login), `MaxAuthTries 3` and `AllowUsers <named accounts>`.
+3. **Automate response.** Deploy `fail2ban` or equivalent to block sources with repeated failures.
+4. **Alert, don't just collect.** Create alerts for repeated `Failed password` events, logins from new sources and root login attempts.
+5. **Validate detections.** Test every search or alert against a known event, using `grep -i` or `"Failed password"` and `"Accepted"`, and exclude self-generated entries. Capture a successful SSH login to complete the evidence set.
+6. **Reduce exposure.** Disable SSH where it is not needed and never expose port 22 directly to the internet.
+
+## 6. Alignment with Security Frameworks
+
+| Framework | Relevant control |
+|---|---|
+| ISO/IEC 27001:2022 | A.8.15 Logging, A.8.16 Monitoring activities |
+| CIS Controls v8 | Control 8: Audit Log Management |
+| NIST CSF 2.0 | DE.CM: Continuous Monitoring |
+| MITRE ATT&CK | T1021.004 (Remote Services: SSH), T1110 (Brute Force) |
+
+## 7. Conclusion
+
+Reliable authentication logging is a baseline control for protecting business systems. This investigation showed that a default build can leave remote access unmonitored, that the gap is cheap to close, and that detection queries must be tested before they are trusted. Applying the recommendations above gives a business earlier warning of unauthorised access attempts and the evidence needed to respond.
+
+---
+
+*All testing was performed on my own isolated virtual machine for learning purposes.*
