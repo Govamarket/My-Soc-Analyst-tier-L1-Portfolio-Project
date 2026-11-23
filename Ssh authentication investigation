@@ -43,19 +43,19 @@ sudo grep -i "failed password" /var/log/auth.log | grep -v COMMAND
 
 **Figure 1: Logging gap.** Default `/var/log` contains a `journal` directory but no `auth.log`.
 
-![Figure 1: /var/log before rsyslog, no auth.log present](images/01-var-log-listing.png)
+[Figure 1: /var/log before rsyslog, no auth.log present](images/01-var-log-listing.png)
 
 **Figure 2: Failed SSH authentication.** The journal records the service start, two failed passwords and a pre-authentication timeout.
 
-![Figure 2: journalctl output showing failed SSH logins](images/02-journalctl-ssh-failed-logins.png)
+[Figure 2: journalctl output showing failed SSH logins](images/02-journalctl-ssh-failed-logins.png)
 
 **Figure 3: Audit trail after enabling rsyslog.** `auth.log` now records service changes and privileged commands with timestamps.
 
-![Figure 3: auth.log showing rsyslog and SSH service events](images/04-auth-log-sudo-and-ssh-service-events.png)
+[Figure 3: auth.log showing rsyslog and SSH service events](images/04-auth-log-sudo-and-ssh-service-events.png)
 
 **Figure 4: Detection pitfall.** A case-sensitive search matched only my own commands and found none of the real failed logins.
 
-![Figure 4: grep results matching only sudo command lines](images/05-grep-failed-password-self-match.png)
+[Figure 4: grep results matching only sudo command lines](images/05-grep-failed-password-self-match.png)
 
 ## 4. Findings and Business Risk
 
