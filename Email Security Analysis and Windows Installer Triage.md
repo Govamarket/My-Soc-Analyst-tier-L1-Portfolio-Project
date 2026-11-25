@@ -77,6 +77,8 @@ The message promoted a 45-minute CV review session redeemable for 2,000 Legacy P
 
 - ![h5 — Email authentication evidence](files/h5.PNG)
   **h5:** Email authentication evidence associated with the ALX Africa Community CV review message.
+- ![pass — Authentication pass result](files/pass.PNG)
+  **pass:** Authentication pass evidence associated with the email security investigation.
 
 **Assessment: Likely legitimate community communication, but sender identity requires context.**
 
