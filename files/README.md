@@ -1,12 +1,12 @@
-# Files and Evidence Index
+# Evidence Directory
 
-This directory contains investigation reports and their supporting evidence. The order below follows the investigation workflow; original filenames are preserved.
+This directory contains evidence for the investigations in the parent repository, `My-Soc-Analyst-tier-L1-Portfolio-Project`.
 
-## 1. SSH authentication investigation
+## SSH Authentication Investigation
 
-**Report:** [SSH Authentication Investigation](ssh-authentication-investigation.md)
+**Report:** [SSH Authentication Investigation](../Ssh%20authentication%20investigation)
 
-**Evidence, in report order:**
+Evidence is numbered in report order:
 
 1. [01 — `/var/log` listing](01-var-log-listing.png)
 2. [02 — SSH failed logins in the journal](02-journalctl-ssh-failed-logins.png)
@@ -15,27 +15,12 @@ This directory contains investigation reports and their supporting evidence. The
 5. [05 — Failed-password search self-match](05-grep-failed-password-self-match.png)
 6. [06 — `last` output with no SSH sessions](06-last-output-no-ssh-sessions.png)
 
-## 2. Email security and Windows installer triage
+## Email Security and Windows Installer Triage
 
-**Report:** [Email Security Analysis and Windows Installer Triage](Email%20Security%20Analysis%20and%20Windows%20Installer%20Triage.md)
+**Report:** [Email Security Analysis and Windows Installer Triage](../Email%20Security%20Analysis%20and%20Windows%20Installer%20Triage.md)
 
-The following image files are also present. Their filenames alone do not identify which findings or report sections they support, so they are listed without assigning interpretations:
+Email investigation screenshots remain to be grouped and renamed before they are referenced in the report.
 
-- [MAI.PNG](MAI.PNG)
-- [amdp.PNG](amdp.PNG)
-- [h1.PNG](h1.PNG)
-- [h2.PNG](h2.PNG)
-- [h3.PNG](h3.PNG)
-- [h4.PNG](h4.PNG)
-- [h5.PNG](h5.PNG)
-- [kk.PNG](kk.PNG)
-- [pass.PNG](pass.PNG)
+---
 
-## 3. Entries needing a filename check
-
-These names were included in the supplied inventory, but their purpose or exact file type is unclear. Confirm whether they are duplicates, old drafts, or supporting material before renaming or moving them:
-
-- `Ssh authentication investigation`
-- `README.md`
-
-When possible, use descriptive, lowercase filenames and number screenshots in the order they appear in the report. Update report image links whenever files are moved or renamed.
+Keep each investigation in a separate report and link supporting evidence by a descriptive filename. Do not combine SSH and email findings into the same report.
