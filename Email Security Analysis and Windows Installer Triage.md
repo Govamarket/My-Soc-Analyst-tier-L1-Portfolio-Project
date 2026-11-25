@@ -3,7 +3,7 @@
 **Investigation Type:** Email security and endpoint threat triage  
 **Analyst:** Clinton Chidera  
 **Investigation Date:** 25 November 2026  
-**Role Alignment:** SOC Tier 1 — Email Security, Threat Intelligence and Endpoint Investigation  
+**Role Alignment:** SOC Tier 1 — Email Security, Threat Intelligence and Endpoint Investigation
 
 ---
 
@@ -72,9 +72,9 @@ The investigation used a layered, Tier 1 triage approach:
 
 ## 3. Email Security Analysis
 
-## 3.1 Case A — Kaisar Legacy Rewards Email
+### 3.1 Case A — Kaisar Legacy Rewards Email
 
-### Message Details
+#### Message Details
 
 | Field | Observed Value |
 |---|---|
@@ -85,7 +85,7 @@ The investigation used a layered, Tier 1 triage approach:
 
 The message directed recipients to sign in with the same Google account associated with their previous account and directed them to the Kaisar application.
 
-### Header Authentication Findings
+#### Header Authentication Findings
 
 | Check | Result | Interpretation |
 |---|---|---|
@@ -97,14 +97,26 @@ The message directed recipients to sign in with the same Google account associat
 
 The authentication evidence provides positive support that authorised infrastructure sent the message for the authenticated domain.
 
-### Evidence
+#### Authentication Evidence
 
-- **h1:** DKIM public-key and signature review for `amazonses.com` — `files/h1.PNG`
-- **h2:** DKIM public-key and signature review for `news.kaisar.io` — `files/h2.PNG`
-- **h3:** SPF record and authentication review for `mail.news.kaisar.io` — `files/h3.PNG`
-- **h4:** DMARC record and authentication review for `dmarc.news.kaisar.io` — `files/h4.PNG`
+| Evidence | Finding |
+|---|---|
+| **h1 — DKIM key and signature** | DKIM public-key and signature review for `amazonses.com`. |
+| **h2 — DKIM key and signature** | DKIM public-key and signature review for `news.kaisar.io`. |
+| **h3 — SPF record** | SPF authentication review for `mail.news.kaisar.io`. |
+| **h4 — DMARC record** | DMARC authentication review for `dmarc.news.kaisar.io`. |
 
-### Link Analysis
+| **h1** | **h2** |
+|---|---|
+| ![h1 — DKIM public-key and signature review for amazonses.com](files/h1.PNG) | ![h2 — DKIM public-key and signature review for news.kaisar.io](files/h2.PNG) |
+
+| **h3** | **h4** |
+|---|---|
+| ![h3 — SPF record and authentication review for mail.news.kaisar.io](files/h3.PNG) | ![h4 — DMARC record and authentication review for dmarc.news.kaisar.io](files/h4.PNG) |
+
+*Figure 1: DKIM, SPF and DMARC evidence for the Kaisar Legacy Rewards email.*
+
+#### Link Analysis
 
 - **Visible destination:** `https://app.kaisar.io/`
 - **Observed HTML behaviour:** Used an Amazon SES tracking redirect before forwarding the recipient to the application.
@@ -112,7 +124,7 @@ The authentication evidence provides positive support that authorised infrastruc
 
 A tracking redirect can hide the underlying path and should be inspected before users interact with it. The redirect being consistent with the official application domain provides additional, but not definitive, legitimacy context.
 
-### Case Assessment
+#### Case Assessment
 
 **Assessment:** Likely legitimate, based on the available evidence.
 
@@ -120,9 +132,9 @@ The sender domain, Reply-To address, authentication results and destination were
 
 ---
 
-## 3.2 Case B — ALX Africa Community CV Review Email
+### 3.2 Case B — ALX Africa Community CV Review Email
 
-### Message Details
+#### Message Details
 
 | Field | Observed Value |
 |---|---|
@@ -132,7 +144,7 @@ The sender domain, Reply-To address, authentication results and destination were
 | Reply-To | `community@sandtech.com` |
 | Claimed purpose | 45-minute CV review session redeemable for 2,000 Legacy Points |
 
-### Header Authentication Findings
+#### Header Authentication Findings
 
 | Check | Result | Interpretation |
 |---|---|---|
@@ -145,12 +157,15 @@ The sender domain, Reply-To address, authentication results and destination were
 
 A `p=none` policy means that the domain owner requested monitoring and reporting rather than a policy-based reject or quarantine action. It does not invalidate the authentication pass, but it provides less enforcement than a stricter policy.
 
-### Evidence
+#### Authentication Evidence
 
-- **h5:** Email authentication evidence associated with the CV review message — `files/h5.PNG`
-- **pass:** Authentication pass evidence associated with the investigation — `files/pass.PNG`
+| **h5 — Email Authentication Evidence** | **pass — Authentication Pass Evidence** |
+|---|---|
+| ![h5 — Email authentication evidence associated with the ALX Africa Community CV review message](files/h5.PNG) | ![pass — Authentication pass result associated with the email security investigation](files/pass.PNG) |
 
-### Case Assessment
+*Figure 2: Authentication evidence for the ALX Africa Community CV review email.*
+
+#### Case Assessment
 
 **Assessment:** Likely legitimate community communication, but sender identity requires organisational context.
 
