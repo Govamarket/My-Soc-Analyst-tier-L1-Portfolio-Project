@@ -6,7 +6,7 @@
 
 ## About This Portfolio
 
-This portfolio documents practical Tier 1 SOC exercises performed in an isolated laboratory environment. Each investigation follows a structured process: define scope, collect evidence, analyse activity, assess impact, and provide recommendations.
+This portfolio documents practical Tier 1 SOC exercises performed in an isolated laboratory environment. Each investigation follows a structured process: define scope, collect evidence, analyse activity, document findings, and distinguish confirmed facts from limitations.
 
 > **Environment:** Kali Linux 2026.2 and isolated VirtualBox lab  
 > **Classification:** Public lab exercises  
@@ -17,7 +17,7 @@ This portfolio documents practical Tier 1 SOC exercises performed in an isolated
 | Module | Area | Status | Investigation |
 |---|---|---|---|
 | 01 | Linux investigation | Complete | [SSH Authentication Investigation](Ssh%20authentication%20investigation) |
-| 02 | Network analysis | Planned | Protocol and traffic investigation |
+| 02 | Email and executable triage | Complete | [Email Security and Windows Installer Triage](Email%20Security%20Analysis%20and%20Windows%20Installer%20Triage.md) |
 | 03 | Windows investigation | Planned | Windows event and timeline investigation |
 | 04 | Vulnerability management | Planned | Vulnerability assessment and register |
 | 05 | Threat intelligence | Planned | IOC investigation and MITRE ATT&CK mapping |
@@ -38,13 +38,15 @@ This investigation examines authentication visibility on Kali Linux, including j
 
 ### Email Security and Windows Installer Triage
 
-This investigation reviews suspicious-looking email characteristics, SPF, DKIM and DMARC results, message headers, VirusTotal evidence, publisher hashes, signing disclosures and cautious installer-verification steps.
+This investigation reviews suspicious-looking email characteristics, SPF, DKIM and DMARC results, message headers, VirusTotal evidence, publisher hashes, signing disclosures and cautious installer triage.
 
 **Key limitation:** The installer was not executed, and local Minisign verification and a recorded Defender scan were not completed.
 
+[Open the email and installer report](Email%20Security%20Analysis%20and%20Windows%20Installer%20Triage.md)
+
 ## Evidence
 
-The [`files`](files) directory contains SSH screenshots and its evidence index. Email-specific screenshots should be grouped separately and renamed descriptively before linking them in the email report.
+The [`files`](files) directory contains supporting investigation evidence. The email report's four supplied screenshots are also documented in the evidence index.
 
 ## Core Analyst Skills
 
@@ -70,6 +72,7 @@ The [`files`](files) directory contains SSH screenshots and its evidence index. 
 
 - [GitHub profile](https://github.com/Govamarket)
 - [SSH authentication report](Ssh%20authentication%20investigation)
+- [Email and Windows installer report](Email%20Security%20Analysis%20and%20Windows%20Installer%20Triage.md)
 - [CTF write-ups](https://github.com/Govamarket/Ctf-writeups)
 
 ---
