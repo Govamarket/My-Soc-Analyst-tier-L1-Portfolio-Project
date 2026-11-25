@@ -4,7 +4,7 @@
 
 This project documents a hands-on security investigation involving email authenticity checks, email-header analysis, threat-intelligence review and static triage of a Windows installer.
 
-The objective was to assess suspicious-looking email characteristics, examine the authentication evidence, investigate a downloaded executable without running it, and compare findings against the software publisher's official documentation.
+The objective was to assess suspicious-looking email characteristics, examine the authentication evidence, investigate a downloaded executable without running it, and compare findings against the software publisher's published release information.
 
 **Investigation date:** 25 November 2026  
 **Analyst:** Clinton Chidera  
@@ -18,7 +18,7 @@ The objective was to assess suspicious-looking email characteristics, examine th
 **Sender:** `hello@news.kaisar.io`  
 **Reply-To:** `support@kaisar.io`
 
-The email informed previous ZeroNode and Kaisar Provider users that their legacy rewards could be accessed through the Kaisar application. It instructed recipients to sign in with the same Google account previously used on ZeroNode and review their rewards.
+The email informed previous ZeroNode and Kaisar Provider users that their legacy rewards could be accessed through the Kaisar application. It instructed recipients to sign in with the same Google account used by their ZeroNode account or to create a new account.
 
 #### Header Authentication Findings
 
@@ -34,12 +34,14 @@ The email's authentication results provide positive evidence that it was sent th
 
 #### Evidence Images
 
-The following screenshots accompany the header analysis:
-
-- **Image 1:** DKIM public-key and signature review for `amazonses.com`.
-- **Image 2:** DKIM public-key and signature review for `news.kaisar.io`.
-- **Image 3:** SPF record and authentication review for `mail.news.kaisar.io`.
-- **Image 4:** DMARC record and authentication review for `dmarc.news.kaisar.io`.
+- ![h1 — DKIM public-key and signature review for amazonses.com](files/h1.PNG)
+  **h1:** DKIM public-key and signature review for `amazonses.com`.
+- ![h2 — DKIM public-key and signature review for news.kaisar.io](files/h2.PNG)
+  **h2:** DKIM public-key and signature review for `news.kaisar.io`.
+- ![h3 — SPF record and authentication review for mail.news.kaisar.io](files/h3.PNG)
+  **h3:** SPF record and authentication review for `mail.news.kaisar.io`.
+- ![h4 — DMARC record and authentication review for dmarc.news.kaisar.io](files/h4.PNG)
+  **h4:** DMARC record and authentication review for `dmarc.news.kaisar.io`.
 
 #### Link Analysis
 
@@ -51,7 +53,7 @@ The destination domain is consistent with the official Kaisar application domain
 
 **Assessment: Likely legitimate, based on the available evidence.**
 
-The sender domain, SPF, DKIM and DMARC results, reply-to address and application destination were consistent with the publisher's official domains. This does not independently verify reward balances, token values, bonus offers or future payment claims.
+The sender domain, SPF, DKIM and DMARC results, reply-to address and application destination were consistent with the publisher's official domains. This does not independently verify reward balances, token eligibility or the claims made by the service.
 
 ### Case B: ALX Africa Community CV Review Email
 
@@ -70,6 +72,11 @@ The message promoted a 45-minute CV review session redeemable for 2,000 Legacy P
 | Sending service | Mailgun | The message was sent using Mailgun infrastructure |
 | Sending domain | `notification.circle.so` | The authenticated domain was not `alxafrica.com` |
 | DMARC policy | `p=none` | The domain's published policy was monitoring rather than quarantine or rejection |
+
+#### Evidence Images
+
+- ![h5 — Email authentication evidence](files/h5.PNG)
+  **h5:** Email authentication evidence associated with the ALX Africa Community CV review message.
 
 **Assessment: Likely legitimate community communication, but sender identity requires context.**
 
@@ -93,7 +100,7 @@ SPF, DKIM and DMARC authenticate the sending domain and message alignment; they 
 - SecureAge: Malicious
 - Trapmine: Malicious.high.ml.score
 
-Tags included `peexe`, `obfuscated`, `detect-debug-environment` and `overlay`. These findings warrant further investigation but do not independently establish that the executable is malware. Obfuscation and anti-debugging techniques can occur in legitimate software.
+Tags included `peexe`, `obfuscated`, `detect-debug-environment` and `overlay`. These findings warrant further investigation but do not independently establish that the executable is malware. Obfuscation and heuristic detections require context.
 
 ### Sigma Rule Matches
 
@@ -182,13 +189,13 @@ The executable was not run during the investigation.
 
 The email-header evidence provided positive authentication indicators for the Kaisar and ALX community messages, but authentication alone was not treated as proof of every message claim.
 
-The Kaisar installer received two detections from 63 VirusTotal vendors. Its SHA-256 matched the value published on the official downloads page. The publisher documents Minisign as its release-signing mechanism and discloses that the Windows build is not Authenticode code-signed.
+The Kaisar installer received two detections from 63 VirusTotal vendors. Its SHA-256 matched the value published on the official downloads page. The publisher documents Minisign as its release-signing mechanism.
 
 The available evidence does not justify declaring the installer either definitively malicious or completely safe. Further signature verification and security scanning remain necessary.
 
 ## Disclaimer
 
-This is an independent educational security investigation. It is not an endorsement of the software, a formal malware verdict, or a claim that the publisher's security statements have been independently audited.
+This is an independent educational security investigation. It is not an endorsement of the software, a formal malware verdict, or a claim that the publisher's security statements have been independently verified.
 
 No executable was run as part of the documented investigation.
 
