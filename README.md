@@ -17,15 +17,14 @@ This portfolio documents practical Tier 1 SOC exercises performed in an isolated
 | Module | Area | Status | Investigation |
 |---|---|---|---|
 | 01 | Linux investigation | Complete | [SSH Authentication Investigation](Ssh%20authentication%20investigation) |
-| 02 | Email security and Windows triage | Complete | [Email Security Analysis and Windows Installer Triage](Email%20Security%20Analysis%20and%20Windows%20Installer%20Triage.md) |
-| 03 | Network analysis | Planned | Protocol and traffic investigation |
-| 04 | Windows investigation | Planned | Windows event and timeline investigation |
-| 05 | Vulnerability management | Planned | Vulnerability assessment and register |
-| 06 | Threat intelligence | Planned | IOC investigation and MITRE ATT&CK mapping |
-| 07 | SIEM monitoring | Planned | SIEM setup and alert triage |
-| 08 | Incident response | Planned | Incident report and lessons learned |
-| 09 | Detection engineering | Planned | Authentication and anomaly rules |
-| 10 | SOC capstone | Planned | Shift report, alert register, and incident tickets |
+| 02 | Network analysis | Planned | Protocol and traffic investigation |
+| 03 | Windows investigation | Planned | Windows event and timeline investigation |
+| 04 | Vulnerability management | Planned | Vulnerability assessment and register |
+| 05 | Threat intelligence | Planned | IOC investigation and MITRE ATT&CK mapping |
+| 06 | SIEM monitoring | Planned | SIEM setup and alert triage |
+| 07 | Incident response | Planned | Incident report and lessons learned |
+| 08 | Detection engineering | Planned | Authentication and anomaly rules |
+| 09 | SOC capstone | Planned | Shift report, alert register, and incident tickets |
 
 ## Featured Investigations
 
@@ -42,8 +41,6 @@ This investigation examines authentication visibility on Kali Linux, including j
 This investigation reviews suspicious-looking email characteristics, SPF, DKIM and DMARC results, message headers, VirusTotal evidence, publisher hashes, signing disclosures and cautious installer-verification steps.
 
 **Key limitation:** The installer was not executed, and local Minisign verification and a recorded Defender scan were not completed.
-
-[Open the email security and Windows installer report](Email%20Security%20Analysis%20and%20Windows%20Installer%20Triage.md)
 
 ## Evidence
 
@@ -73,7 +70,6 @@ The [`files`](files) directory contains SSH screenshots and its evidence index. 
 
 - [GitHub profile](https://github.com/Govamarket)
 - [SSH authentication report](Ssh%20authentication%20investigation)
-- [Email security and Windows installer triage](Email%20Security%20Analysis%20and%20Windows%20Installer%20Triage.md)
 - [CTF write-ups](https://github.com/Govamarket/Ctf-writeups)
 
 ---
