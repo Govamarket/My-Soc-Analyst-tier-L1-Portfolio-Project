@@ -9,15 +9,27 @@
 
 ## Executive Summary
 
-This report documents an independent investigation of two potentially suspicious emails and one Windows installer. The investigation focused on email authentication, sender and link context, publisher verification, file reputation and safe static triage without executing the installer.
+This report documents an independent Tier 1 investigation of two potentially suspicious emails and one Windows installer. The investigation assessed email authentication, sender and Reply-To context, tracking and destination URLs, executable reputation, publisher-provided integrity information, and observed static or behavioural indicators.
 
 ### Key Findings
 
 | Area | Result | SOC Assessment |
 |---|---|---|
-| Kaisar legacy rewards email | SPF, DKIM and DMARC passed; sender and destination aligned with Kaisar infrastructure | **Likely legitimate**, but the email cannot independently verify reward claims |
-| ALX Africa CV review email | SPF, DKIM and DMARC passed for `notification.circle.so`; DMARC policy is `p=none` | **Likely legitimate community communication**, requiring brand-authorisation context |
-| Kaisar Windows installer | 2 of 63 VirusTotal vendors detected the file; hash matched the official publisher checksum | **Unconfirmed; additional verification and escalation recommended** |
+| Kaisar Legacy Rewards email | SPF, DKIM and DMARC passed; sender and reply-to domains were aligned with Kaisar infrastructure; the final link resolved to `app.kaisar.io` | **Likely legitimate**, but the reward claims were not independently verified |
+| ALX Africa CV review email | SPF, DKIM and DMARC passed for `notification.circle.so`; the sender used Mailgun; DMARC is `p=none` | **Likely legitimate community communication**, but organisational authorisation must be confirmed |
+| Kaisar Windows installer | 2 of 63 VirusTotal vendors detected the file; SHA-256 matched the official publisher checksum | **Unconfirmed; controlled validation and escalation recommended** |
+
+### Overall Assessment
+
+The available email evidence supports a likely-legitimate assessment for both messages. Authentication passing does not independently prove that claims, offers or brand use are authorised. The ALX message should therefore receive additional brand-authorisation confirmation, while recipients should avoid entering credentials or sensitive information on an unverified path.
+
+The Kaisar installer is not confirmed malicious or safe based on the available evidence. Although the hash matches the Kaisar-published checksum, two antivirus engines produced detections and the file showed obfuscation and overlay characteristics. The investigation did not execute the file or complete local Minisign and Microsoft Defender verification.
+
+### Risk and Priority
+
+- **Email risk:** Low to moderate pending campaign authorisation and user interaction review.
+- **Endpoint risk:** Moderate pending Minisign verification, Defender scanning and isolated sandbox analysis.
+- **Priority:** Quarantine or block the installer according to organisational policy, search for the same hash and filename across managed endpoints, and escalate to Tier 2 or Incident Response if execution or malicious sandbox findings are confirmed.
 
 No executable was run during this investigation.
 
@@ -122,7 +134,7 @@ The authentication evidence provides positive support that authorised infrastruc
 - **Observed HTML behaviour:** Used an Amazon SES tracking redirect before forwarding the recipient to the application.
 - **Final destination domain:** Consistent with the official Kaisar application domain.
 
-A tracking redirect can hide the underlying path and should be inspected before users interact with it. The redirect being consistent with the official application domain provides additional, but not definitive, legitimacy context.
+A tracking redirect can hide the underlying path and should be inspected before users interact with it. The redirect being consistent with the official application domain provides additional, but not conclusive, legitimacy evidence.
 
 #### Case Assessment
 
@@ -155,7 +167,7 @@ The sender domain, Reply-To address, authentication results and destination were
 | Sending domain | `notification.circle.so` | The authenticated domain differs from `alxafrica.com` |
 | DMARC policy | `p=none` | The published policy is monitoring rather than quarantine or rejection |
 
-A `p=none` policy means that the domain owner requested monitoring and reporting rather than a policy-based reject or quarantine action. It does not invalidate the authentication pass, but it provides less enforcement than a stricter policy.
+A `p=none` policy means that the domain owner requested monitoring and reporting rather than a policy-based reject or quarantine action. It does not invalidate the authentication pass, but it provides weaker enforcement than `p=quarantine` or `p=reject`.
 
 #### Authentication Evidence
 
@@ -175,7 +187,52 @@ SPF, DKIM and DMARC authenticate the sending domain and message alignment. They 
 
 ---
 
-## 4. Windows Installer Security Investigation
+## 4. Indicators of Compromise (IOC) Table
+
+This table contains investigation-specific indicators that are suitable for alerting and enrichment. Values should be triaged in context rather than treated as automatic proof of compromise.
+
+| Indicator Type | Indicator | Context | Recommended Action |
+|---|---|---|---|
+| Email sender | `hello@news.kaisar.io` | Sender for the Kaisar Legacy Rewards email | Search mail telemetry; allow only if the message and campaign are expected |
+| Reply-To | `support@kaisar.io` | Reply-To domain observed in the Kaisar email | Verify against official Kaisar communications |
+| Sender domain | `news.kaisar.io` | SPF, DKIM and DMARC authentication evidence | Use as a hunt value, not a sole allow/block condition |
+| Email infrastructure | Amazon SES | Delivery infrastructure used by the Kaisar message | Search for the same SES campaign pattern and recipient activity |
+| Email sender | `no-reply@notification.circle.so` | ALX Africa community message sender | Search mail telemetry and validate campaign authorisation |
+| Reply-To | `community@sandtech.com` | Reply-To observed in the ALX community email | Confirm whether it belongs to an authorised ALX/Sand Tech campaign |
+| Sender domain | `notification.circle.so` | Authenticated via Mailgun | Investigate sender identity and brand authorisation |
+| Email infrastructure | Mailgun | Delivery infrastructure used by the ALX message | Hunt for matching infrastructure in the mail environment |
+| Subject | `Your legacy rewards are ready in Kaisar` | Kaisar campaign subject observed | Search historical and future messages for recipient spread |
+| Subject | `GET YOUR CV READY FOR YOUR NEXT CAREER MOVE!` | ALX community campaign subject observed | Search mail logs and correlate with user actions |
+| URL domain | `app.kaisar.io` | Final destination associated with the Kaisar email | Verify certificate and inspect login activity |
+| SHA-256 | `0f930057d68140f374f536becd2818ddf403519a2ae52a2b132e8f02e21f4cdf` | Kaisar installer 2.1.2 hash | Hunt endpoints, quarantine copies and submit to sandbox |
+| Filename | `Kaisar.Node_2.1.2_x64-setup.exe` | Windows installer name | Search endpoint process, file and download telemetry |
+| Detection | SecureAge — Malicious | VirusTotal vendor classification | Correlate with endpoint execution and Defender alerts |
+| Detection | Trapmine — Malicious.high.ml.score | VirusTotal vendor classification | Correlate with sandbox and behavioural evidence |
+| MITRE-related tag | `detect-debug-environment` | Indicates possible anti-analysis behaviour | Prioritize controlled sandbox execution if policy permits |
+| MITRE-related tag | `obfuscated` / `overlay` | Packing or integrity characteristics; may be legitimate | Inspect sample structure without user execution |
+
+---
+
+## 5. MITRE ATT&CK Mapping
+
+The following mappings describe investigation-relevant techniques. They are contextual mappings, not confirmation that the observed emails or installer successfully used the techniques.
+
+| Observed or Potential Activity | ATT&CK Technique | ID | Triage Value |
+|---|---|---:|---|
+| Use of an external community platform or branded display name to support campaign legitimacy | Phishing for Information | T1566.002 (Spearphishing Link) / T1585 (Establish Accounts) when infrastructure appears pre-positioned | Review the destination, reply context and recipient behaviour |
+| User requests to sign in or redeem an offer through a link | Phishing: Spearphishing Link | T1566.002 | Hunt for credential-entry, redirects and identity-provider events |
+| Tracking redirect used before delivery to the final application | Hidden URL / Redirect | T1566.002 context | Expand, defang and preserve redirect chains in the incident ticket |
+| Suspicious Windows executable downloaded or present on an endpoint | Ingress Tool Transfer | T1105 | Search download sources and endpoint file-transfer events |
+| Installer executable characteristics and possible evasion | Obfuscated Files or Information | T1027 | Examine packing, strings and overlay data without running the file |
+| Debug-environment detection characteristics | Virtualization/Sandbox Evasion | T1497 | Validate in an isolated, monitored environment using appropriate configuration |
+| Executable creation or installer-like process behaviour | System Binary Proxy Execution is not confirmed; review as Windows Installer activity | T1218 or application execution context if observed | Correlate process creation and parent-child relationships |
+| Restart Manager DLL load may support installer or application behaviour | DLL Side-Loading or indirect loading is not confirmed; require process context | T1574 context | Investigate anomalous process loading `RstrtMgr.dll` |
+
+Use `T1566.002` and credential/account activity for the email cases. Use `T1105`, `T1027` and `T1497` only as hypotheses for the installer until execution or sandbox evidence is available.
+
+---
+
+## 6. Windows Installer Security Investigation
 
 ### Sample Details
 
@@ -188,7 +245,7 @@ SPF, DKIM and DMARC authenticate the sending domain and message alignment. They 
 | SHA-256 | `0f930057d68140f374f536becd2818ddf403519a2ae52a2b132e8f02e21f4cdf` |
 | Execution status | Not executed |
 
-### 4.1 VirusTotal Findings
+### 6.1 VirusTotal Findings
 
 **Detection ratio:** 2/63
 
@@ -208,7 +265,7 @@ Observed tags included:
 
 These characteristics warrant further investigation but do not independently establish that the executable is malicious. Packagers and installers may use obfuscation or overlay data for legitimate purposes.
 
-### 4.2 Sigma Rule Matches
+### 6.2 Sigma Rule Matches
 
 Crowdsourced Sigma results included:
 
@@ -217,7 +274,7 @@ Crowdsourced Sigma results included:
 
 These detections are behavioural indicators, not direct proof of malicious activity. `RstrtMgr.dll` is associated with Windows Restart Manager functionality, which installers commonly use.
 
-### 4.3 Risk Interpretation
+### 6.3 Risk Interpretation
 
 The available evidence creates a low-to-medium-confidence concern:
 
@@ -230,7 +287,7 @@ The sample should therefore be **escalated for controlled validation**, not decl
 
 ---
 
-## 5. Publisher and Integrity Verification
+## 7. Publisher and Integrity Verification
 
 The official Kaisar downloads page lists Windows version 2.1.2 with the following SHA-256:
 
@@ -252,15 +309,15 @@ The publisher states that this release is:
 - https://kaisar.io/docs/node/install
 - https://kaisar.io/security
 
-An unsigned Authenticode status does not automatically indicate malware when the publisher explicitly documents an alternative signing mechanism. However, it remains important to verify the Minisign signature locally before trusting the publisher claim.
+An unsigned Authenticode status does not automatically indicate malware when the publisher explicitly documents an alternative signing mechanism. However, it remains important to verify the Minisign signature from the official public key.
 
 ---
 
-## 6. Safe Verification Procedure
+## 8. Safe Verification Procedure
 
 The commands below are for controlled verification and should be recorded in an investigation ticket.
 
-### 6.1 Calculate SHA-256
+### 8.1 Calculate SHA-256
 
 ```powershell
 Get-FileHash "$env:USERPROFILE\Downloads\Kaisar.Node_2.1.2_x64-setup.exe" -Algorithm SHA256
@@ -272,7 +329,7 @@ Compare the local result exactly against:
 0f930057d68140f374f536becd2818ddf403519a2ae52a2b132e8f02e21f4cdf
 ```
 
-### 6.2 Verify the Minisign Signature
+### 8.2 Verify the Minisign Signature
 
 ```powershell
 minisign -Vm "$env:USERPROFILE\Downloads\Kaisar.Node_2.1.2_x64-setup.exe" -P "RWQZTGW5zf2SxIa2AoOHPrzNxzVB98P7Abqe9ZeSzMMWzZbjH5CUHdig"
@@ -286,19 +343,19 @@ Signature and comment signature verified
 
 Record the command output. Do not infer success from the presence of the signature file alone.
 
-### 6.3 Inspect Authenticode Status
+### 8.3 Inspect Authenticode Status
 
 ```powershell
 Get-AuthenticodeSignature "$env:USERPROFILE\Downloads\Kaisar.Node_2.1.2_x64-setup.exe" | Format-List Status,StatusMessage,SignerCertificate
 ```
 
-### 6.4 Confirm Microsoft Defender Status
+### 8.4 Confirm Microsoft Defender Status
 
 ```powershell
 Get-MpComputerStatus | Select-Object AMServiceEnabled,AntivirusEnabled,RealTimeProtectionEnabled,AntivirusSignatureLastUpdated
 ```
 
-### 6.5 Run a Custom Defender Scan
+### 8.5 Run a Custom Defender Scan
 
 ```powershell
 Start-MpScan -ScanType CustomScan -ScanPath "$env:USERPROFILE\Downloads\Kaisar.Node_2.1.2_x64-setup.exe"
@@ -308,29 +365,42 @@ Start-MpScan -ScanType CustomScan -ScanPath "$env:USERPROFILE\Downloads\Kaisar.N
 
 ---
 
-## 7. Recommended SOC Actions
+## 9. Recommendations
 
-### Email Alerts
+### Immediate Actions
 
-1. Preserve the original `.eml` or `.msg` message where available.
-2. Review sender, Reply-To, Return-Path and received headers.
-3. Extract and defang URLs before sharing in an incident ticket.
-4. Search SIEM and email-security telemetry for the same subject, sender domain or infrastructure.
-5. Identify affected recipients and whether any links or attachments were accessed.
-6. Escalate if users entered credentials, downloaded files or responded with sensitive information.
+1. Preserve the original `.eml` or `.msg` files and complete email headers.
+2. Defang, extract and preserve the URL chain; do not open links from the incident ticket in a normal browser.
+3. Search mail, SIEM and endpoint telemetry for both subjects, sender domains, reply-to domains, filename and SHA-256.
+4. Block or quarantine the installer through endpoint controls where organisational policy permits, while preserving evidence.
+5. Confirm that no affected user executed the installer or entered credentials at either destination.
 
-### Installer Alert
+### Email Containment
 
-1. Quarantine or block the file pending verification if organisational policy permits.
-2. Verify the SHA-256, Minisign signature and Defender result in a controlled environment.
-3. Submit the file to an isolated malware-analysis sandbox if permitted.
-4. Review process, file, registry and network telemetry if execution has occurred.
-5. Search endpoints for the filename and hash.
-6. Escalate to Tier 2 or incident response if the signature or sandbox analysis indicates malicious behaviour.
+- Search for recipient interactions, link clicks and authentication events around the two message timestamps.
+- If credential submission is confirmed, reset affected credentials, revoke active sessions and review identity-provider sign-in logs.
+- Confirm ALX Africa/Sand Tech authorisation for the CV campaign through an official organisational channel.
+- Continue delivery of the Kaisar email unless additional evidence, user reports or campaign anomalies indicate that it is fraudulent.
+
+### Endpoint Validation
+
+- Verify the SHA-256 exactly against `0f930057d68140f374f536becd2818ddf403519a2ae52a2b132e8f02e21f4cdf`.
+- Confirm the Minisign signature using the publisher's official public key.
+- Record Microsoft Defender, Application Control and endpoint protection scan results.
+- Submit the file to an approved isolated sandbox and review process, file, registry, persistence and network behaviour.
+- If execution occurred, review process trees, downloaded payloads, persistence mechanisms and network connections; escalate to Tier 2 or Incident Response.
+
+### Long-Term Controls
+
+- Tune email detections for display-name mismatches and third-party sending platforms.
+- Strengthen DMARC enforcement to `p=quarantine` or `p=reject` where safely deployed.
+- Implement application or file reputation controls for unsigned executables.
+- Centralise hash and URL hunting through SIEM and threat-intelligence platforms.
+- Document approved signing, download and verification processes for external software.
 
 ---
 
-## 8. Investigation Limitations
+## 10. Investigation Limitations
 
 - Successful local Minisign verification was not completed.
 - A local Microsoft Defender scan result was not recorded.
@@ -344,19 +414,19 @@ These limitations prevent a definitive malware verdict or final confirmation of 
 
 ---
 
-## 9. Conclusion
+## 11. Conclusion
 
 The email authentication evidence provided positive indicators for both investigated messages, but authentication alone was not treated as proof of their claims or brand authorisation.
 
-The Kaisar Legacy Rewards message was assessed as likely legitimate. The ALX Africa community message was also assessed as likely legitimate, with organisational context required for higher confidence. Both cases should be handled according to normal email-security controls and user-interaction evidence.
+The Kaisar Legacy Rewards message was assessed as likely legitimate. The ALX Africa community message was also assessed as likely legitimate, with organisational context required for higher confidence.
 
-The Kaisar installer received two detections from 63 VirusTotal vendors. Its SHA-256 matched the value published on the official downloads page, and the publisher documents a Minisign-based release-signing mechanism. These findings do not justify declaring the installer definitively malicious or completely safe.
+The Kaisar installer received two detections from 63 VirusTotal vendors. Its SHA-256 matched the value published on the official downloads page, and the publisher documents a Minisign-based release-signing method.
 
 A local signature verification, Defender scan and isolated dynamic analysis remain necessary for a high-confidence endpoint-security decision.
 
 ---
 
-## 10. Key Security Lessons
+## 12. Key Security Lessons
 
 1. Email display names are not sufficient to establish sender authenticity.
 2. SPF, DKIM and DMARC provide useful evidence but do not prove that an email's claims are true.
