@@ -2,228 +2,200 @@
 
 **Author:** Clinton Chidera  
 **Category:** Email Security Analysis | SOC Analyst Tier 1  
-**Environment:** Kali Linux, GoPhish, Gmail SMTP and Gmail  
-**Investigation Date:** 27 November 2026  
-**Status:** Investigation completed; spam classification cause undetermined
+**Investigation date:** 27 November 2026  
+**Environment:** Authorized personal lab — Kali Linux, GoPhish and Gmail  
+**Status:** Closed; spam classification cause undetermined  
+**Classification:** Training / portfolio report. Account identifiers and unique tracking values should be redacted before public distribution.
 
 ---
 
-## 1. Investigation Overview
+## Executive Summary
 
-As part of my SOC Analyst Tier 1 practical exercises, I conducted an email security investigation using GoPhish and Gmail SMTP.
+An authorized email-security exercise tested a GoPhish awareness-simulation message sent through Gmail SMTP to a mailbox controlled by the investigator. Gmail's “Show Original” results showed SPF, DKIM and DMARC passing. The simulated email was delivered to Spam. A separate, manually composed message from the same sender to the same recipient also landed in Spam and passed the same authentication checks.
 
-The objective was to configure GoPhish to send an authorised security awareness simulation email, inspect its delivery behaviour, analyse email authentication results and investigate why Gmail classified the message as Spam despite successful SPF, DKIM and DMARC authentication.
+The comparison does **not** establish GoPhish as the cause. The available evidence confirms SMTP submission and successful authentication, but does not identify Gmail's classification rationale. No evidence of account compromise or malicious activity was reported in this exercise. Treat the Spam placement as a deliverability observation, not an indicator of compromise.
 
-I used two Gmail accounts under my control:
+**Disposition:** Informational / low-risk, authorized lab activity. Investigation closed with the classification cause undetermined; further provider-side evidence would be required to determine it.
 
-- **Sender:** ismeclinton@gmail.com
-- **Recipient:** dapplabx@gmail.com
+## 1. Triage
 
-All testing was conducted within my personal laboratory environment.
-
-## 2. Lab Environment
-
-| Component | Configuration |
+| Triage field | Assessment |
 |---|---|
-| Operating System | Kali Linux |
-| Simulation Platform | GoPhish |
-| SMTP Provider | Gmail SMTP |
-| SMTP Host | smtp.gmail.com |
-| SMTP Port | 587 |
-| Sender Account | ismeclinton@gmail.com |
-| Recipient Account | dapplabx@gmail.com |
-| Email Authentication | SPF, DKIM and DMARC |
-| Analysis Method | Gmail Show Original / Email Header Analysis |
+| Alert / event | Authorized GoPhish email simulation classified as Spam by Gmail |
+| Scope | Two Gmail accounts controlled by the investigator; personal lab |
+| Initial severity | Informational (lab exercise; no unauthorized recipient reported) |
+| Observed impact | Messages reached the recipient mailbox's Spam folder; no account or endpoint impact reported |
+| Authentication | SPF: PASS; DKIM: PASS; DMARC: PASS, as recorded in Gmail Show Original |
+| Suspicious artifacts | GoPhish `X-Mailer` header and email-open tracking element; expected in this simulation |
+| Compromise assessment | No evidence of compromise identified in the evidence supplied for this report; endpoint telemetry was not assessed |
+| Triage decision | No incident escalation indicated by the available evidence. Preserve the headers/screenshots and avoid drawing a cause from Spam placement alone. |
 
-## 3. Investigation Objectives
+### Triage actions performed
 
-1. Configure GoPhish to send an authorised security awareness email.
-2. Verify successful SMTP submission.
-3. Inspect SPF, DKIM and DMARC authentication results.
-4. Examine email routing and message headers.
-5. Investigate Gmail Spam classification.
-6. Compare a GoPhish-generated email against a manually composed Gmail email.
+1. Confirmed the test was conducted in the investigator's personal lab using accounts under their control.
+2. Reviewed Gmail Show Original for authentication and routing information.
+3. Compared the GoPhish message with a manually composed message sent between the same accounts.
+4. Checked recipient-side Gmail filters; no custom or sender-specific filter was identified.
+5. Recorded the outcome as unresolved because the available evidence does not expose Gmail's internal spam-classification signals.
 
-## 4. GoPhish Configuration and Email Simulation
+## 2. Scope, Objectives and Limitations
 
-I configured a Gmail SMTP sending profile in GoPhish.
+The exercise aimed to configure an authorized awareness-simulation email, verify Gmail SMTP submission, review SPF/DKIM/DMARC and message headers, and compare Spam placement against a manually composed message.
 
-The sending profile used:
+Testing was limited to the investigator's own lab and controlled mailboxes. The report relies on the investigator's observations and the supplied header excerpts/screenshots. It does not include raw `.eml` files, full unredacted headers, provider-side spam telemetry, mailbox audit logs, endpoint telemetry, or independent reputation/intelligence lookups. The findings therefore do not determine why Gmail classified either message as Spam.
 
-- SMTP server: smtp.gmail.com
-- Port: 587
-- Sender: ismeclinton@gmail.com
+## 3. Executive Incident Record
 
-I created a custom HTML email template titled:
-
-**Security Awareness Test – Account Verification**
-
-The message clearly identified itself as an authorised security awareness exercise and instructed the recipient to report the message through an approved security reporting channel.
-
-I also configured a campaign using my own test recipient account.
-
-## 5. Email Header Analysis
-
-After receiving the GoPhish email, I opened Gmail's Show Original feature to inspect the message headers.
-
-### 5.1 Authentication Results
-
-| Authentication Mechanism | Result |
+| Field | Details |
 |---|---|
-| SPF | PASS |
-| DKIM | PASS |
-| DMARC | PASS |
+| Case | GoPhish / Gmail Spam-classification investigation |
+| Date | 27 November 2026 |
+| System/service | Gmail SMTP and Gmail recipient mailbox |
+| Activity | Authorized security-awareness simulation and controlled comparison |
+| Result | Both the GoPhish email and the manually composed email were placed in Spam |
+| Authentication result | SPF, DKIM and DMARC passed for both messages, per the recorded results |
+| Root cause | Undetermined |
+| Closure | Closed as an informational lab finding; no evidence provided of compromise or unauthorized activity |
 
-The authentication results included:
+## 4. Lab Environment and Method
 
-```text
-spf=pass
-dkim=pass
-dmarc=pass
-```
+| Component | Configuration / use |
+|---|---|
+| Operating system | Kali Linux |
+| Simulation platform | GoPhish |
+| SMTP service | Gmail SMTP (`smtp.gmail.com`, port 587) |
+| Mailboxes | Investigator-controlled Gmail accounts; identifiers redacted in this public report |
+| Analysis | Gmail Show Original / header review; comparison with a manually composed message |
 
-The DMARC policy information was:
+The GoPhish sending profile used Gmail SMTP. The HTML template was titled **“Security Awareness Test – Account Verification”** and identified itself as an authorized exercise, with instructions to report it through the approved channel. A campaign was configured for the investigator's own test mailbox.
 
-```text
-dmarc=pass (p=NONE sp=QUARANTINE dis=NONE)
-```
+## 5. Evidence and Screenshots
 
-This indicates that DMARC authentication passed, while the primary domain policy was configured for monitoring rather than quarantine or rejection.
+The following repository screenshots are attached as relative links. Their filenames are preserved; captions identify the evidence artifact without asserting details that are not independently described in the report.
 
-### 5.2 SMTP Routing Analysis
+1. **kll.PNG** — [View screenshot](files/kll.PNG)  
+   ![GoPhish evidence screenshot kll.PNG](files/kll.PNG)
+2. **kls.PNG** — [View screenshot](files/kls.PNG)  
+   ![GoPhish evidence screenshot kls.PNG](files/kls.PNG)
+3. **lkk.PNG** — [View screenshot](files/lkk.PNG)  
+   ![GoPhish evidence screenshot lkk.PNG](files/lkk.PNG)
+4. **lks.PNG** — [View screenshot](files/lks.PNG)  
+   ![GoPhish evidence screenshot lks.PNG](files/lks.PNG)
+5. **llll.PNG** — [View screenshot](files/llll.PNG)  
+   ![GoPhish evidence screenshot llll.PNG](files/llll.PNG)
+6. **lpl.PNG** — [View screenshot](files/lpl.PNG)  
+   ![GoPhish evidence screenshot lpl.PNG](files/lpl.PNG)
+7. **lpn.PNG** — [View screenshot](files/lpn.PNG)  
+   ![GoPhish evidence screenshot lpn.PNG](files/lpn.PNG)
+8. **majk.PNG** — [View screenshot](files/majk.PNG)  
+   ![GoPhish evidence screenshot majk.PNG](files/majk.PNG)
+9. **nops.PNG** — [View screenshot](files/nops.PNG)  
+   ![GoPhish evidence screenshot nops.PNG](files/nops.PNG)
+10. **op.PNG** — [View screenshot](files/op.PNG)  
+    ![GoPhish evidence screenshot op.PNG](files/op.PNG)
+11. **p1.PNG** — [View screenshot](files/p1.PNG)  
+    ![GoPhish evidence screenshot p1.PNG](files/p1.PNG)
+12. **pass.PNG** — [View screenshot](files/pass.PNG)  
+    ![Email security evidence screenshot pass.PNG](files/pass.PNG)
+13. **texzt.PNG** — [View screenshot](files/texzt.PNG)  
+    ![GoPhish evidence screenshot texzt.PNG](files/texzt.PNG)
+14. **user.PNG** — [View screenshot](files/user.PNG)  
+    ![GoPhish evidence screenshot user.PNG](files/user.PNG)
 
-The relevant headers included:
+## 6. Technical Findings
 
-```text
-Received: from kali ([105.112.225.147])
-by smtp.gmail.com
-```
+### 6.1 Authentication
 
-This showed that my Kali Linux machine submitted the email through Gmail SMTP.
+The recorded Gmail Show Original results were:
 
-The receiving infrastructure showed:
-
-```text
-Received: from mail-sor-f65.google.com
-[209.85.220.65]
-by mx.google.com
-```
-
-The message was subsequently processed by Google's receiving infrastructure.
-
-### 5.3 GoPhish Identification
-
-The email contained:
-
-```text
-X-Mailer: gophish
-```
-
-This identified GoPhish as the sending application.
-
-The message also contained a tracking element:
-
-```html
-<img alt='' style='display: none'
-src='/track?rid=pm4CNk3'/>
-```
-
-This is associated with GoPhish email-open tracking.
-
-## 6. Spam Classification Investigation
-
-Despite passing all three authentication checks, Gmail delivered the GoPhish email to the Spam folder.
-
-I initially suspected that GoPhish's email configuration or message construction might have contributed to the classification.
-
-To investigate this hypothesis, I performed a controlled comparison.
-
-### 6.1 Test One: GoPhish-Generated Email
-
-- Sender: ismeclinton@gmail.com
-- Recipient: dapplabx@gmail.com
-- Delivery location: Spam
-- SPF: PASS
-- DKIM: PASS
-- DMARC: PASS
-
-### 6.2 Test Two: Manually Composed Gmail Email
-
-I sent a separate, manually composed email from the same Gmail account to the same recipient.
-
-The message was a simple plain-text email without GoPhish tracking.
-
-Results:
-
-- Sender: ismeclinton@gmail.com
-- Recipient: dapplabx@gmail.com
-- Delivery location: Spam
-- SPF: PASS
-- DKIM: PASS
-- DMARC: PASS
-
-### 6.3 Comparative Findings
-
-| Indicator | GoPhish Email | Normal Gmail Email |
+| Mechanism | GoPhish message | Manually composed message |
 |---|---|---|
-| Sender | Same | Same |
-| Recipient | Same | Same |
-| Sending IP | 209.85.220.65 | 209.85.220.65 |
 | SPF | PASS | PASS |
 | DKIM | PASS | PASS |
 | DMARC | PASS | PASS |
-| Delivery | Spam | Spam |
-| X-Mailer | gophish | Not present |
-| Content Type | text/html | multipart/alternative |
 
-The comparison showed that both messages were classified as Spam despite differences in their message construction.
+The inspected output included `spf=pass`, `dkim=pass` and `dmarc=pass`. The recorded DMARC policy text was `dmarc=pass (p=NONE sp=QUARANTINE dis=NONE)`. Authentication passing confirms the reported checks passed; it does not guarantee inbox placement or explain the Spam decision.
 
-This means the available evidence does not establish GoPhish as the sole cause of the Spam classification.
+### 6.2 Routing and message characteristics
 
-## 7. Additional Checks
+The investigator reported a `Received` header indicating submission from a Kali host to `smtp.gmail.com`, followed by processing through Google's mail infrastructure. A Google mail server address (`209.85.220.65`) was recorded in the comparison. The message included `X-Mailer: gophish` and a hidden image tracking element with a recipient-specific `rid` value. These are consistent with the described GoPhish test; their presence alone does not establish malicious activity.
 
-I inspected the recipient Gmail account's filter settings.
+For privacy, the workstation's public IP, mailbox addresses and unique tracking identifier are intentionally not reproduced here. Preserve the unredacted originals only in an appropriately access-controlled evidence location.
 
-- No custom filters were configured.
-- No sender-specific filter was identified.
+### 6.3 Controlled comparison
 
-However, this does not rule out Gmail's other spam-filtering mechanisms or account-level reputation signals.
+| Attribute | GoPhish simulation | Manually composed message |
+|---|---|---|
+| Sender / recipient | Same controlled accounts | Same controlled accounts |
+| Delivery location | Spam | Spam |
+| SPF / DKIM / DMARC | PASS / PASS / PASS | PASS / PASS / PASS |
+| GoPhish marker | `X-Mailer: gophish` reported | Not present |
+| Format | `text/html` reported | `multipart/alternative` reported |
 
-## 8. Investigation Findings
+Both messages landing in Spam weakens the hypothesis that GoPhish alone caused the outcome. It does not identify an alternative cause. No conclusion about sender reputation, content scoring, or other Gmail signals can be made from the evidence available.
 
-The investigation established the following:
+## 7. Threat Intelligence (TI) Assessment
 
-1. GoPhish successfully submitted the email through Gmail SMTP.
-2. Gmail's receiving infrastructure accepted the message.
-3. SPF, DKIM and DMARC authentication passed.
-4. The email contained GoPhish identification and tracking elements.
-5. A manually composed email from the same sender also landed in Spam.
-6. The recipient's custom Gmail filters were empty.
-7. The exact reason for Gmail's Spam classification remains undetermined.
+**Assessment:** No external threat-intelligence enrichment was performed or supplied. The observed artifacts are contextual email and infrastructure observables from an authorized lab, not confirmed malicious indicators.
 
-## 9. Security Lessons Learned
+- The GoPhish marker and tracking element are expected in the documented simulation context.
+- `smtp.gmail.com` and the reported Google mail infrastructure address relate to the Gmail delivery path; this report does not classify them as malicious.
+- Passing SPF, DKIM and DMARC is an authentication result, not a threat-intelligence verdict.
+- Spam-folder placement by itself is not proof of phishing, compromise, or malicious sender reputation.
+- No threat actor, malware family, campaign attribution, or malicious infrastructure is established by this investigation.
 
-This investigation reinforced several important email security concepts:
+Any future TI enrichment should be performed against appropriately redacted observables and recorded with the source, timestamp, and confidence. Do not treat shared provider infrastructure as a standalone block indicator.
 
-- SPF validates whether a sending server is authorised for the evaluated sender domain.
-- DKIM verifies the cryptographic signature of an email.
-- DMARC evaluates authentication alignment against the visible From domain and applies the published policy.
-- Successful email authentication does not guarantee inbox placement.
-- Email deliverability and email authentication are separate areas of investigation.
-- Email headers provide valuable evidence for identifying mail routing, sending infrastructure and email clients.
+## 8. IOC and Observable Register
 
-## 10. Conclusion
+No confirmed malicious IOC was identified. The table below separates investigation observables from actual compromise indicators.
 
-The investigation successfully demonstrated GoPhish SMTP configuration, email header inspection and SPF, DKIM and DMARC verification.
+| Observable | Value recorded | Classification / handling |
+|---|---|---|
+| SMTP host | `smtp.gmail.com` | Gmail service endpoint; contextual, not a malicious IOC |
+| SMTP port | `587` | Submission service detail; not an IOC by itself |
+| Reported Google mail server IP | `209.85.220.65` | Shared-provider infrastructure in the reported route; not a malicious IOC based on this evidence |
+| Workstation public IP | Redacted | Reported in a `Received` header; sensitive lab identifier, retain only in controlled evidence |
+| Sender and recipient addresses | Redacted | Investigator-controlled Gmail accounts; personal data, omitted from public report |
+| User-Agent / mailer marker | `X-Mailer: gophish` | Application-identification artifact expected for this authorized test; not proof of compromise |
+| Tracking path | `/track?rid=[redacted]` | GoPhish-style tracking observable; unique identifier redacted |
+| Authentication results | SPF PASS; DKIM PASS; DMARC PASS | Email-authentication findings, not IOCs |
+| Message disposition | Spam for both test messages | Delivery outcome; not an IOC or root-cause determination |
+| File hashes / attachment IOCs | Not available | No attachment hashes or malicious file indicators were provided |
 
-Although both the GoPhish-generated email and the manually composed Gmail email passed authentication, both were classified as Spam.
+**IOC conclusion:** The available material supports a record of benign lab observables only. There are no confirmed malicious domains, file hashes, or attacker-controlled IP addresses in the supplied evidence.
 
-The findings demonstrate that authentication success alone is insufficient to explain email deliverability.
+## 9. Additional Checks, Findings and Response
 
-Further investigation into Gmail's spam classification signals, sender reputation and recipient-side filtering behaviour is required before identifying the underlying cause.
+The recipient Gmail settings were reviewed; no custom filters or sender-specific filter were identified. This does not exclude other provider-side classification signals or account-level factors.
 
-**Final Investigation Status:** Authentication verified; SMTP delivery verified; Spam classification cause undetermined.
+Key findings:
 
----
+1. GoPhish successfully submitted the simulation through Gmail SMTP, according to the test record.
+2. Gmail's receiving infrastructure accepted and processed the messages.
+3. SPF, DKIM and DMARC passed for both compared messages, as recorded.
+4. The GoPhish message included a GoPhish-identification header and tracking element.
+5. Both the GoPhish and manually composed messages landed in Spam.
+6. No custom recipient filter was identified.
+7. The cause of Spam classification remains undetermined.
+8. No evidence of account compromise or malicious activity was reported; endpoint telemetry was outside the scope of this review.
 
-**Tools Used:** Kali Linux | GoPhish | Gmail SMTP | Gmail Show Original | MXToolbox
+**Response / disposition:** No containment action was indicated for this controlled test. The case is closed as an informational deliverability investigation. If this behavior affects legitimate operational mail, collect full headers and provider diagnostics, review relevant account/security settings, and use the provider's approved support process.
+
+## 10. Security Lessons Learned
+
+- SPF evaluates whether the sending infrastructure is authorized for the evaluated envelope sender domain.
+- DKIM validates a cryptographic signature over selected message content and headers.
+- DMARC evaluates alignment and applies the domain's published policy.
+- Authentication success does not guarantee inbox placement.
+- A Spam disposition does not independently establish maliciousness or compromise.
+- Comparative tests can narrow hypotheses, but do not reveal provider-side classifier reasons without additional telemetry.
+- Email headers and screenshots are evidence; preserve originals, document collection context, and redact personal or recipient-specific values before public release.
+
+## 11. Conclusion
+
+This authorized lab exercise demonstrated GoPhish configuration, Gmail SMTP submission, header review, and a controlled comparison with a manually composed email. Both messages passed the recorded SPF, DKIM and DMARC checks and both were placed in Spam. Because the manually composed message had the same outcome, the available evidence does not support attributing the result solely to GoPhish. The Spam classification cause remains undetermined.
+
+**Final disposition:** Authorized activity; authentication and SMTP handling verified from the reported evidence; no confirmed malicious IOC; Spam-classification cause undetermined.
+
+**Tools used:** Kali Linux | GoPhish | Gmail SMTP | Gmail Show Original | MXToolbox
