@@ -18,13 +18,14 @@ This portfolio documents practical Tier 1 SOC exercises performed in an isolated
 |---|---|---|---|
 | 01 | Linux investigation | Complete | [SSH Authentication Investigation](Ssh%20authentication%20investigation) |
 | 02 | Email and executable triage | Complete | [Email Security and Windows Installer Triage](Email%20Security%20Analysis%20and%20Windows%20Installer%20Triage.md) |
-| 03 | Windows investigation | Planned | Windows event and timeline investigation |
-| 04 | Vulnerability management | Planned | Vulnerability assessment and register |
-| 05 | Threat intelligence | Planned | IOC investigation and MITRE ATT&CK mapping |
-| 06 | SIEM monitoring | Planned | SIEM setup and alert triage |
-| 07 | Incident response | Planned | Incident report and lessons learned |
-| 08 | Detection engineering | Planned | Authentication and anomaly rules |
-| 09 | SOC capstone | Planned | Shift report, alert register, and incident tickets |
+| 03 | Email simulation and spam analysis | Complete | [GoPhish / Gmail Spam Investigation — MITRE ATT&CK Mapping](files/GoPhish-Gmail-Spam-Investigation-MITRE-ATT&CK.md) |
+| 04 | Windows investigation | Planned | Windows event and timeline investigation |
+| 05 | Vulnerability management | Planned | Vulnerability assessment and register |
+| 06 | Threat intelligence | Planned | IOC investigation and MITRE ATT&CK mapping |
+| 07 | SIEM monitoring | Planned | SIEM setup and alert triage |
+| 08 | Incident response | Planned | Incident report and lessons learned |
+| 09 | Detection engineering | Planned | Authentication and anomaly rules |
+| 10 | SOC capstone | Planned | Shift report, alert register, and incident tickets |
 
 ## Featured Investigations
 
@@ -44,15 +45,26 @@ This investigation reviews suspicious-looking email characteristics, SPF, DKIM a
 
 [Open the email and installer report](Email%20Security%20Analysis%20and%20Windows%20Installer%20Triage.md)
 
+### GoPhish / Gmail Spam Investigation
+
+This investigation documents an authorized awareness-simulation email sent through GoPhish to two controlled Gmail accounts. It reviews the resulting Spam-folder placement, mail authentication results, GoPhish tracking markers and defensive MITRE ATT&CK mapping.
+
+**Key finding:** SPF, DKIM and DMARC passed for both compared messages, and both reached the Spam folder, showing that passing email authentication does not determine Gmail Spam placement or legitimacy.
+
+**Key limitation:** The Spam-classification cause could not be determined, and no recipient click or endpoint telemetry was supplied.
+
+[Open the GoPhish / Gmail Spam report](files/GoPhish-Gmail-Spam-Investigation-MITRE-ATT&CK.md)
+
 ## Evidence
 
-The [`files`](files) directory contains supporting investigation evidence. The email report's four supplied screenshots are also documented in the evidence index.
+The [`files`](files) directory contains supporting investigation evidence. The email report's four supplied screenshots are documented in the evidence index.
 
 ## Core Analyst Skills
 
 - Linux authentication log investigation
 - SSH service configuration and monitoring
 - Email authentication and header analysis
+- GoPhish simulation and Gmail Spam analysis
 - Threat-intelligence evidence review
 - Safe executable triage
 - Detection validation and false-assurance analysis
@@ -66,13 +78,14 @@ The [`files`](files) directory contains supporting investigation evidence. The e
 | ISO/IEC 27001:2022 | A.8.15 Logging; A.8.16 Monitoring activities |
 | CIS Controls v8 | Control 8: Audit Log Management |
 | NIST CSF 2.0 | DE.CM: Continuous Monitoring |
-| MITRE ATT&CK | T1021.004 Remote Services: SSH; T1110 Brute Force |
+| MITRE ATT&CK | T1021.004 Remote Services: SSH; T1110 Brute Force; T1566.002 Spearphishing Link |
 
 ## Links
 
 - [GitHub profile](https://github.com/Govamarket)
 - [SSH authentication report](Ssh%20authentication%20investigation)
 - [Email and Windows installer report](Email%20Security%20Analysis%20and%20Windows%20Installer%20Triage.md)
+- [GoPhish / Gmail Spam investigation](files/GoPhish-Gmail-Spam-Investigation-MITRE-ATT&CK.md)
 - [CTF write-ups](https://github.com/Govamarket/Ctf-writeups)
 
 ---
